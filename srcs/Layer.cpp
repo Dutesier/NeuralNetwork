@@ -49,7 +49,7 @@ Layer::~Layer(){
 }
 
 double* Layer::CalculateOutputs(double* inputs){
-	std::cout << "Calculating Outputs from Layer" << std::endl;
+	//std::cout << "Calculating Outputs from Layer" << std::endl;
 	double* activations = new double[numOfOutputs];
 
 	for (int outputNode = 0; outputNode < numOfOutputs; outputNode++){

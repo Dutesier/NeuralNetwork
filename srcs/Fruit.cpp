@@ -6,7 +6,10 @@ Fruit::Fruit(){
 	ammountOfSpots = 0 + f * (25 - 0);
 	double d = (double)rand() / RAND_MAX;
 	lenOfLeaves = 0 + d * (25 - 0);
-	poisonous = (rand() % 2 != 0 ? 1 : 0);
+	if (lenOfLeaves > 10 && ammountOfSpots > 15)
+		poisonous = true;
+	else
+		poisonous = false;
 	this->traits = new double[2];
 	this->traits[0] = ammountOfSpots;
 	this->traits[1] = lenOfLeaves;
