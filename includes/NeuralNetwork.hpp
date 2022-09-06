@@ -13,6 +13,8 @@ public:
 		this->layers = new Layer*[numOfLayers];
 		for (int i = 0; i < numOfLayers; ++i){
 			layers[i] = new Layer(layersSizes[i], layersSizes[i + 1]);
+			layers[i]->InitializeRandomBiases(); // Do these need to be randomly initialized??
+			layers[i]->InitializeRandomWeights();
 		}
 	}
 
@@ -29,9 +31,11 @@ public:
 
 	// Deep Learning
 	void	Learn(T *data, int dataLen, double learnRate){
+
 		std::cout << "Neural Network --- Learning" << std::endl;
-		const double change = 0.0000001;
+		const double change = 0.00000001;
 		double originalLoss = Loss(data, dataLen);
+		std::cout << "Current Loss: " << originalLoss << std::endl;
 		double deltaLoss;
 
 		for (int lay = 0; lay < numOfLayers; ++lay){
@@ -106,8 +110,9 @@ public:
 	}
 
 	void	ApplyAllGradients(double learnRate){
-		std::cout << "Applying All Gradients" << std::endl;
+		// std::cout << "Applying All Gradients" << std::endl;
 		for (int lay = 0; lay < numOfLayers; ++lay){
+			// std::cout << "--------Layer " << lay << "----------" << std::endl;
 			layers[lay]->ApplyGradients(learnRate);
 		}
 	}

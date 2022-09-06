@@ -147,9 +147,11 @@ void Layer::InitializeRandomBiases(){
 
 void Layer::ApplyGradients(double learnRate){
 	for (int outputNode = 0; outputNode < numOfOutputs; ++outputNode){
+		// std::cout << "Bias[" << outputNode << "]: " << bias[outputNode] << std::endl;
 		bias[outputNode] -= costGradientBias[outputNode] * learnRate;
 		for (int inputNode = 0;  inputNode < numOfInputs; ++inputNode){
 			weights[inputNode][outputNode] -= costGradientWeights[inputNode][outputNode] * learnRate;
+			// std::cout << "Weights[" << inputNode << "][" << outputNode << "]: " << weights[inputNode][outputNode] << std::endl;
 		}
 	}
 }
