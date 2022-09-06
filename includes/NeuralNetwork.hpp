@@ -33,32 +33,35 @@ public:
 	void	Learn(T *data, int dataLen, double learnRate){
 
 		std::cout << "Neural Network --- Learning" << std::endl;
-		const double change = 0.00000001;
+		const double change = 0.0000000001;
 		double originalLoss = Loss(data, dataLen);
-		std::cout << "Current Loss: " << originalLoss << std::endl;
 		double deltaLoss;
 
-		for (int lay = 0; lay < numOfLayers; ++lay){
-			Layer* l = layers[lay];
-			// Calculate cost gradient for weights
-			for (int in = 0; in < l->getInputs(); ++in) {
-				for (int out = 0; out < l->getSize(); ++out){
-					l->setWeights(in, out, l->getWeights(in, out) + change);
+		while (originalLoss > 0.001){
+			originalLoss = Loss(data, dataLen);
+			std::cout << "Current Loss: " << originalLoss << "\r";
+			for (int lay = 0; lay < numOfLayers; ++lay){
+				Layer* l = layers[lay];
+				// Calculate cost gradient for weights
+				for (int in = 0; in < l->getInputs(); ++in) {
+					for (int out = 0; out < l->getSize(); ++out){
+						l->setWeights(in, out, l->getWeights(in, out) + change);
+						deltaLoss = Loss(data, dataLen) - originalLoss;
+						l->setWeights(in, out, l->getWeights(in, out) - change);
+						l->costGradientWeights[in][out] = deltaLoss / change;
+					}
+				}
+
+				// Calculate cost gradient for biases
+				for (int bi = 0; bi < l->getSize(); ++bi){
+					l->setBias(bi, l->getBias(bi) + change);
 					deltaLoss = Loss(data, dataLen) - originalLoss;
-					l->setWeights(in, out, l->getWeights(in, out) - change);
-					l->costGradientWeights[in][out] = deltaLoss / change;
+					l->setBias(bi, l->getBias(bi) - change);
+					l->costGradientBias[bi] = deltaLoss / change;
 				}
 			}
-
-			// Calculate cost gradient for biases
-			for (int bi = 0; bi < l->getSize(); ++bi){
-				l->setBias(bi, l->getBias(bi) + change);
-				deltaLoss = Loss(data, dataLen) - originalLoss;
-				l->setBias(bi, l->getBias(bi) - change);
-				l->costGradientBias[bi] = deltaLoss / change;
-			}
+			ApplyAllGradients(learnRate);
 		}
-		ApplyAllGradients(learnRate);
 	}
 
 	double *CalculateOutputs(double* inputs){
@@ -70,7 +73,7 @@ public:
 	}
 
 	int		Classify(double *inputs){
-		std::cout << "Classifying Neural Network" << std::endl;
+		//std::cout << "Classifying Neural Network" << std::endl;
 		double *outputs = CalculateOutputs(inputs);
 		double max = MIN_VALUE;
 		int	index = -1;
