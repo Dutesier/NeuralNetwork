@@ -48,7 +48,7 @@ void PrintClassify(NeuralNetwork<Fruit>& network){
 	int classified;
 	double inputs[2];
 
-	std::cout << "Spots" << std::endl;
+	// std::cout << "Spots" << std::endl;
 	for (double y = 49; y >= 0; --y){
 		if (y < 10)
 			std::cout << " ";
@@ -72,8 +72,8 @@ void PrintClassify(NeuralNetwork<Fruit>& network){
 		if (y < 10)
 			std::cout << " ";
 	}
-
-	std::cout << std::endl << "Leaves" << std::endl;
+	std::cout << "\033[50A";
+	// std::cout << std::endl << "Leaves\033[48A";
 }
 
 void MeasureAccuracy(Fruit* array, int len, NeuralNetwork<Fruit>& network){
