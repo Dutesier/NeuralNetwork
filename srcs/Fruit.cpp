@@ -26,6 +26,8 @@ Fruit::Fruit(double spots, double leaves, bool poison){
 	this->traits[0] = spots;
 	this->traits[1] = leaves;
 	this->expectedResult = new double[2];
+	// If the fruit is poisonous we expect to get a (1, 0)
+	// else we should get (0, 1)
 	this->expectedResult[0] = (poisonous);
 	this->expectedResult[1] = (!poisonous);
 }

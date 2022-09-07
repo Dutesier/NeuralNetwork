@@ -2,6 +2,13 @@
 # define NEURALNETWORK_HPP
 
 # include "Layer.hpp"
+# include "Fruit.hpp"
+
+const double MIN_LOSS = 0.1;
+
+template <typename T>
+class NeuralNetwork;
+void PrintClassify(NeuralNetwork<Fruit>& network);
 
 template <typename T>
 class NeuralNetwork {
@@ -33,13 +40,17 @@ public:
 	void	Learn(T *data, int dataLen, double learnRate){
 
 		std::cout << "Neural Network --- Learning" << std::endl;
-		const double change = 0.0000000001;
-		double originalLoss = Loss(data, dataLen);
+		const double change = 0.0001;
+		double originalLoss;
 		double deltaLoss;
 
-		while (originalLoss > 0.001){
+		while (true){
 			originalLoss = Loss(data, dataLen);
+			if (originalLoss < MIN_LOSS)
+				break ;
 			std::cout << "Current Loss: " << originalLoss << "\r";
+			if (originalLoss < MIN_LOSS + 0.1)
+				PrintClassify(*this);
 			for (int lay = 0; lay < numOfLayers; ++lay){
 				Layer* l = layers[lay];
 				// Calculate cost gradient for weights
@@ -66,7 +77,7 @@ public:
 
 	double *CalculateOutputs(double* inputs){
 		for (int i = 0; i < numOfLayers; ++i){
-			// Forward  Traversal
+			// Forward Traversal
 			inputs = layers[i]->CalculateOutputs(inputs);
 		}
 		return (inputs);
@@ -78,6 +89,7 @@ public:
 		double max = MIN_VALUE;
 		int	index = -1;
 		for (int i = 0; i < layers[numOfLayers - 1]->getSize(); ++i){
+			//std::cout << "Final node of index " << i << " is of value: " << outputs[i] << std::endl;
 			if (outputs[i] > max) {
 				max = outputs[i];
 				index = i;
@@ -94,6 +106,8 @@ public:
 		double loss = 0;
 
 		for (int outputNode = 0; outputNode < outputLayer->getSize(); ++outputNode){
+			// If fruit is poisonous we expect a (1, 0)
+			// data.expectedResult[0] should be 1 
 			loss += outputLayer->NodeCost(outputs[outputNode], data.expectedResult[outputNode]);
 		}
 		//std::cout << "Calculated Single Loss" << std::endl;

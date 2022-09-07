@@ -4,7 +4,7 @@
 # include <iostream>
 # include <cmath>
 const double MIN_VALUE = -1;
-const double FMIN = 0;
+const double FMIN = -1;
 const double FMAX = 1;
 
 class Layer {

@@ -133,7 +133,7 @@ void Layer::InitializeRandomWeights(){
 	for (int in = 0; in < numOfInputs; ++in){
 		for (int out = 0; out < numOfOutputs; ++out) {
 			double f = (double)rand() / RAND_MAX;
-			weights[in][out] = FMIN + f * (FMAX - FMIN);
+			weights[in][out] = (FMIN + f * (FMAX - FMIN)) / sqrt(numOfInputs);
 		}
 	}
 }
@@ -141,7 +141,8 @@ void Layer::InitializeRandomWeights(){
 void Layer::InitializeRandomBiases(){
 	for (int out = 0; out < numOfOutputs; ++out){
 		double f = (double)rand() / RAND_MAX;
-		bias[out] = FMIN + f * (FMAX - FMIN);
+		bias[out] = -(5) + f * (5 - (-5));
+		//bias[out] = f * (0);
 	}
 }
 
