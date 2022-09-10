@@ -3,6 +3,7 @@
 
 # include "Layer.hpp"
 # include "Fruit.hpp"
+# include "NetworkTrainingData.hpp"
 
 const double MIN_LOSS = 0.1;
 
@@ -23,6 +24,7 @@ public:
 			layers[i]->InitializeRandomBiases(); // Do these need to be randomly initialized??
 			layers[i]->InitializeRandomWeights();
 		}
+		this->trainingData = new NetworkTrainingData(layers, numOfLayers);
 	}
 
 	// Destructor
@@ -34,6 +36,7 @@ public:
 			}
 			delete[] layers;
 		}
+		delete trainingData;
 	}
 
 	// Deep Learning
@@ -126,6 +129,21 @@ public:
 		return (totalLoss / dataLen);
 	}
 
+	double*	CalculateOutputLayerNodeValue(LayerTrainingData& trainingData, double *expectedOutput){
+		Layer*	outputLayer = (layers[numOfLayers - 1]);
+		int		outputSize = outputLayer->getSize();
+		double*	nodeValues = new double[outputSize];
+
+		if (trainingData.nodeValues)
+			delete[] trainingData.nodeValues;
+		trainingData.nodeValues = nodeValues;
+		for (int i = 0; i < outputSize; ++i){
+			double costDerivative = outputLayer->NodeCostDerivative(trainingData.activations[i], expectedOutput[i]);
+			double activationDerivative = outputLayer->ActivationDerivative(trainingData.weightedInputs[i]);
+			trainingData.nodeValues[i] = costDerivative * activationDerivative;
+		}
+	}
+
 	void	ApplyAllGradients(double learnRate){
 		// std::cout << "Applying All Gradients" << std::endl;
 		for (int lay = 0; lay < numOfLayers; ++lay){
@@ -133,9 +151,11 @@ public:
 			layers[lay]->ApplyGradients(learnRate);
 		}
 	}
+
 private:
-	Layer**	layers;
-	int		numOfLayers;
+	Layer**					layers;
+	int						numOfLayers;
+	NetworkTrainingData*	trainingData;
 };
 
 #endif

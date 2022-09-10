@@ -11,26 +11,29 @@ class Layer {
 public:
 	Layer();
 	Layer(int numOfInputs, int numOfOutputs);
-	double* CalculateOutputs(double* inputs);
 	virtual ~Layer();
 
 	Layer& operator=(const Layer& origin);
 
-	double NodeCost(double outputActivation, double expectedOutput);
-	void ApplyGradients(double learnRate);
+	double* CalculateOutputs(double* inputs);
+	double	Activation(double weightedInput);
+	double	ActivationDerivative(double weightedInput);
+	double	NodeCost(double outputActivation, double expectedOutput);
+	double	NodeCostDerivative(double outputActivation, double expectedOutput);
+	void	ApplyGradients(double learnRate);
 
-	int getSize();
-	int getInputs();
-	double getWeights(int inputNode, int outputNode);
-	void setWeights(int inputNode, int outputNode, double  weight);
-	void InitializeRandomWeights();
-	void InitializeRandomBiases();
-	void setBias(int index, double bi);
-	double getBias(int index);
+	int		getSize();
+	int		getInputs();
+	double	getWeights(int inputNode, int outputNode);
+	void	setWeights(int inputNode, int outputNode, double  weight);
+	void	InitializeRandomWeights();
+	void	InitializeRandomBiases();
+	void	setBias(int index, double bi);
+	double	getBias(int index);
 
 	
-	double** costGradientWeights;
-	double* costGradientBias;
+	double**	costGradientWeights;
+	double*		costGradientBias;
 private:
 	// Attributes
 	int numOfInputs; // ammount of nodes that we receive from

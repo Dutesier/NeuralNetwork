@@ -58,11 +58,32 @@ double* Layer::CalculateOutputs(double* inputs){
 		for (int inputNode = 0; inputNode < numOfInputs; inputNode++){
 			weightedInput += inputs[inputNode] * weights[inputNode][outputNode]; // All the inputs adjusted to their corresponding weight
 		}
-		activations[outputNode] = 1 / (1 + exp(-weightedInput));
+		activations[outputNode] = Activation(weightedInput);
 	}
 
 	return (activations);
 }
+
+double Layer::Activation(double weightedInput){
+	return 1 / (1 + exp(-weightedInput)); //Sigmoid
+}
+
+// How much does the activation change with respect to the weighted input
+double Layer::ActivationDerivative(double weightedInput){
+	double activationValue = Activation(weightedInput);
+	return activationValue * (1 - activationValue);
+}
+
+double Layer::NodeCost(double outputActivation, double expectedOutput){
+	double error  = outputActivation - expectedOutput;
+	return error * error;
+}
+
+// Partial derivative of how the Cost is affected by a change in output activation
+double Layer::NodeCostDerivative(double outputActivation, double expectedOutput){
+	return 2 * (outputActivation - expectedOutput);
+}
+
 
 Layer& Layer::operator=(const Layer& origin) { //  shallow copies
 	if (bias)
@@ -124,10 +145,6 @@ double Layer::getBias(int index){
 	return bias[index];
 }
 
-double Layer::NodeCost(double outputActivation, double expectedOutput){
-	double error  = outputActivation - expectedOutput;
-	return error * error;
-}
 
 void Layer::InitializeRandomWeights(){
 	for (int in = 0; in < numOfInputs; ++in){
@@ -142,7 +159,7 @@ void Layer::InitializeRandomBiases(){
 	for (int out = 0; out < numOfOutputs; ++out){
 		double f = (double)rand() / RAND_MAX;
 		bias[out] = -(5) + f * (5 - (-5));
-		//bias[out] = f * (0);
+		bias[out] = f * (0); // Initializing to 0 for now
 	}
 }
 
