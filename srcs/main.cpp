@@ -137,7 +137,7 @@ void MeasureAccuracy(Fruit* array, int len, NeuralNetwork<Fruit>& network){
 }
 
 int main(void){
-	std::srand(std::time(nullptr));
+	std::srand(time(0));
 	int sizes[3] = {2, 4, 2};
 	double inputs[2] = {20, 20}; // Not poisonous
 	Fruit* fruitSalad = new Fruit[SAMPLE_SIZE];

@@ -1,6 +1,6 @@
 #ifndef LAYER_HPP
 # define LAYER_HPP
-# include <random>
+# include <cstdlib>
 # include <iostream>
 # include <cmath>
 const double MIN_VALUE = -1;

@@ -142,6 +142,8 @@ public:
 			double activationDerivative = outputLayer->ActivationDerivative(trainingData.weightedInputs[i]);
 			trainingData.nodeValues[i] = costDerivative * activationDerivative;
 		}
+
+		return nodeValues;
 	}
 
 	void	ApplyAllGradients(double learnRate){

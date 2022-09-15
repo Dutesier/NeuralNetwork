@@ -1,6 +1,6 @@
 #ifndef FRUIT_HPP
 # define FRUIT_HPP
-# include <random>
+# include <cstdlib>
 
 class Fruit{
 public:

@@ -2,7 +2,7 @@
 # define NN_HPP
 
 # include <iostream>
-# include <random>
+# include <cstdlib>
 # include "NeuralNetwork.hpp"
 
 #endif
