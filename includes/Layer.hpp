@@ -21,6 +21,7 @@ public:
 	double	NodeCost(double outputActivation, double expectedOutput);
 	double	NodeCostDerivative(double outputActivation, double expectedOutput);
 	void	ApplyGradients(double learnRate);
+	void	UpdateGradients(double* inputs, double *nodeValues);
 
 	int		getSize();
 	int		getInputs();

@@ -43,46 +43,57 @@ public:
 	void	Learn(T *data, int dataLen, double learnRate){
 
 		std::cout << "Neural Network --- Learning" << std::endl;
-		const double change = 0.0001;
-		double originalLoss;
-		double deltaLoss;
-
-		while (true){
-			originalLoss = Loss(data, dataLen);
-			if (originalLoss < MIN_LOSS)
-				break ;
-			std::cout << "Current Loss: " << originalLoss << "\r";
-			if (originalLoss < MIN_LOSS + 0.1)
-				PrintClassify(*this);
-			for (int lay = 0; lay < numOfLayers; ++lay){
-				Layer* l = layers[lay];
-				// Calculate cost gradient for weights
-				for (int in = 0; in < l->getInputs(); ++in) {
-					for (int out = 0; out < l->getSize(); ++out){
-						l->setWeights(in, out, l->getWeights(in, out) + change);
-						deltaLoss = Loss(data, dataLen) - originalLoss;
-						l->setWeights(in, out, l->getWeights(in, out) - change);
-						l->costGradientWeights[in][out] = deltaLoss / change;
-					}
-				}
-
-				// Calculate cost gradient for biases
-				for (int bi = 0; bi < l->getSize(); ++bi){
-					l->setBias(bi, l->getBias(bi) + change);
-					deltaLoss = Loss(data, dataLen) - originalLoss;
-					l->setBias(bi, l->getBias(bi) - change);
-					l->costGradientBias[bi] = deltaLoss / change;
-				}
+		// const double change = 0.0001;
+		// double originalLoss;
+		// double deltaLoss;
+		double loss;
+		do {
+			loss = Loss(data, dataLen);
+			std::cout << "Current Loss: " << loss << "\r";
+			for (int d = 0; d < dataLen; ++d){
+				UpdateAllGradients(data[d]);
 			}
-			ApplyAllGradients(learnRate);
-		}
+			ApplyAllGradients(learnRate / dataLen); // Average out all the trainingBatch
+		} while (loss > 0.1);
+		// while (true){
+		// 	originalLoss = Loss(data, dataLen);
+		// 	if (originalLoss < MIN_LOSS)
+		// 		break ;
+		// 	if (originalLoss < MIN_LOSS + 0.1)
+		// 		PrintClassify(*this);
+		// 	for (int lay = 0; lay < numOfLayers; ++lay){
+		// 		Layer* l = layers[lay];
+		// 		// Calculate cost gradient for weights
+		// 		for (int in = 0; in < l->getInputs(); ++in) {
+		// 			for (int out = 0; out < l->getSize(); ++out){
+		// 				l->setWeights(in, out, l->getWeights(in, out) + change);
+		// 				deltaLoss = Loss(data, dataLen) - originalLoss;
+		// 				l->setWeights(in, out, l->getWeights(in, out) - change);
+		// 				l->costGradientWeights[in][out] = deltaLoss / change;
+		// 			}
+		// 		}
+
+		// 		// Calculate cost gradient for biases
+		// 		for (int bi = 0; bi < l->getSize(); ++bi){
+		// 			l->setBias(bi, l->getBias(bi) + change);
+		// 			deltaLoss = Loss(data, dataLen) - originalLoss;
+		// 			l->setBias(bi, l->getBias(bi) - change);
+		// 			l->costGradientBias[bi] = deltaLoss / change;
+		// 		}
+		// 	}
+		// 	ApplyAllGradients(learnRate);
+		// }
+		std::cout << "Finished Learning" << std::endl;
 	}
 
 	double *CalculateOutputs(double* inputs){
-		for (int i = 0; i < numOfLayers; ++i){
+		int i;
+		for (i = 0; i < numOfLayers; ++i){
 			// Forward Traversal
+			trainingData->trainingLayers[i]->activations = inputs;
 			inputs = layers[i]->CalculateOutputs(inputs);
 		}
+		trainingData->trainingLayers[i - 1]->activations = inputs;
 		return (inputs);
 	}
 
@@ -132,18 +143,33 @@ public:
 	double*	CalculateOutputLayerNodeValue(LayerTrainingData& trainingData, double *expectedOutput){
 		Layer*	outputLayer = (layers[numOfLayers - 1]);
 		int		outputSize = outputLayer->getSize();
-		double*	nodeValues = new double[outputSize];
+		//double*	nodeValues = new double[outputSize];
 
 		if (trainingData.nodeValues)
 			delete[] trainingData.nodeValues;
-		trainingData.nodeValues = nodeValues;
+		trainingData.nodeValues = new double[outputSize];
 		for (int i = 0; i < outputSize; ++i){
 			double costDerivative = outputLayer->NodeCostDerivative(trainingData.activations[i], expectedOutput[i]);
 			double activationDerivative = outputLayer->ActivationDerivative(trainingData.weightedInputs[i]);
 			trainingData.nodeValues[i] = costDerivative * activationDerivative;
 		}
 
-		return nodeValues;
+		return trainingData.nodeValues;
+		//return nodeValues; // WRONG
+	}
+
+	double* CalculateHiddenLayerNodeValue(LayerTrainingData& thisLayer, LayerTrainingData& previousLayer){
+		
+		for (int myNodeValueIndex = 0; myNodeValueIndex < thisLayer.size; ++myNodeValueIndex){
+			double newNodeValue = 0;
+			for (int previousNodeValueIndex = 0; previousNodeValueIndex < previousLayer.size; ++previousNodeValueIndex){
+				double weightedInputDerivative = previousLayer.myLayer->getWeights(myNodeValueIndex, previousNodeValueIndex);
+				newNodeValue += previousLayer.nodeValues[previousNodeValueIndex] * weightedInputDerivative;
+			}
+			newNodeValue *= thisLayer.myLayer->ActivationDerivative(thisLayer.weightedInputs[myNodeValueIndex]);
+			thisLayer.nodeValues[myNodeValueIndex] = newNodeValue;
+		}
+		return thisLayer.nodeValues;
 	}
 
 	void	ApplyAllGradients(double learnRate){
@@ -151,6 +177,20 @@ public:
 		for (int lay = 0; lay < numOfLayers; ++lay){
 			// std::cout << "--------Layer " << lay << "----------" << std::endl;
 			layers[lay]->ApplyGradients(learnRate);
+		}
+	}
+
+	void	UpdateAllGradients(T& data){
+		
+		CalculateOutputs(data.traits);
+
+		Layer* outputLayer = layers[numOfLayers - 1];
+		double* nodeValues = CalculateOutputLayerNodeValue(*trainingData->trainingLayers[numOfLayers - 1], data.expectedResult);
+		outputLayer->UpdateGradients(data.traits, nodeValues);
+		for (int lay = numOfLayers - 2; lay >= 0; --lay){
+			Layer* hiddenLayer = layers[lay];
+			nodeValues = CalculateHiddenLayerNodeValue(*trainingData->trainingLayers[lay], *trainingData->trainingLayers[lay + 1]);
+			hiddenLayer->UpdateGradients(trainingData->trainingLayers[lay]->activations, nodeValues);
 		}
 	}
 

@@ -6,9 +6,11 @@
 class LayerTrainingData {
 public:
 	LayerTrainingData(Layer& lay){
-		this->weightedInputs = new double[lay.getSize()];
-		this->activations = new double[lay.getSize()];
-		this->nodeValues = new double[lay.getSize()];
+		this->myLayer = &lay;
+		this->size = lay.getSize();
+		this->weightedInputs = new double[size];
+		//this->activations = new double[size];
+		this->nodeValues = new double[size];
 	}
 
 	virtual ~LayerTrainingData(){
@@ -17,7 +19,8 @@ public:
 		delete[] nodeValues;
 	}
 
-	double	*inputs;
+	int		size;
+	Layer*	myLayer;
 	double	*weightedInputs;
 	double	*activations;
 	double	*nodeValues;
