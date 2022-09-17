@@ -141,11 +141,18 @@ int main(void){
 	int sizes[3] = {2, 4, 2};
 	double inputs[2] = {20, 20}; // Not poisonous
 	Fruit* fruitSalad = new Fruit[SAMPLE_SIZE];
+	Fruit* fruitSalad2 = new Fruit[SAMPLE_SIZE];
+	Fruit* fruitSalad3 = new Fruit[SAMPLE_SIZE];
+
 	PrintFruits(fruitSalad, SAMPLE_SIZE);
 
 	NeuralNetwork<Fruit> network(sizes, 2);
 	network.Learn(fruitSalad, SAMPLE_SIZE, 0.02);
+	network.Learn(fruitSalad2, SAMPLE_SIZE, 0.02);
+	network.Learn(fruitSalad3, SAMPLE_SIZE, 0.02);
 	MeasureAccuracy(fruitSalad, SAMPLE_SIZE, network);
 	std::cout << ((network.Classify(inputs)) == 0 ? "\033[41;1mPoisonous\033[0m" : "\033[42;1mSafe\033[0m") << std::endl;
 	delete[] fruitSalad;
+	delete[] fruitSalad2;
+	delete[] fruitSalad3;
 }

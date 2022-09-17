@@ -14,7 +14,6 @@ DIR_S		:=	srcs
 SRCS		:=	srcs/main.cpp \
 				srcs/NeuralNetwork.cpp \
 				srcs/Layer.cpp \
-				srcs/Node.cpp \
 				srcs/Fruit.cpp \
 
 
